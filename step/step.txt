@@ -1,0 +1,90 @@
+----------------------spring配置详解-----------------------
+----------1。IOC和DI---------------
+	IOC：Inverse of control 控制反转，将对象的创建权交给spring
+	DI ：Dependency Injection 依赖注入，需要有IOC的环境，Spring创建这个类的过程中，spring将类的依赖的属性设置进去。
+		注入的方式：1 set方法注入 2 构造方法注入 3字段注入
+		注入的类型：1 值类型注入（4类8种） 2引用类型注入（将依赖对象注入）
+---------2.spring中的容器-----------
+	1.applicationContext接口有两个实现类 ，在启动容器的时候就会创建所有的实例对象。
+			1》ClassPathXmlApplicationContext：加载类路径下的Spring的配置文件
+			2》FileSystemXmlApplicationContext：加载本地磁盘下的Spring的配置文件。
+	2.beanFactory：在getbean的时候才会生成实例。（基本废弃）
+	
+--------------3.spring配置详解---------------------------------
+	1=》bean元素
+		 Bean元素：使用该元素描述spring容器管理的对象 
+				class属性：被管理对象的完整类名
+				name属性：给被管理的对象起个名字，获得对象时根据该名称获得对象，
+						可以重复，可以使用特殊字符。
+				id属性：与name属性一模一样
+						名称不可以重复，不能使用特殊字符。
+				结论：尽量使用name属性。
+	2=》创建对象的三种方式；为了方便演示，新建包creobj
+		1.无参构造创建
+		2.静态工厂创建（了解）
+		3.实例工厂创建（了解）
+	3=>scope属性；为了方便演示，新建包scope
+		常用的有四种
+			1。singleton单例 （默认）
+			2.prototype多例
+			3.request（了解）
+			4.session（了解）
+			5.globalsession（了解）
+	4=>声明周期属性；为了方便演示，新建包initdestroy
+			1。配置一个方法作为生命周期初始化方法，spring会在对象创建之后立即调用 init-method
+			2.配置一个方法作为生命周期的销毁方法。spring容器在关闭并销毁所有容器中的对象之前调用destroy-method
+	5=》spring分模块配置。
+			导入其他spring配置文件
+			<import resource="com/jinan/www/initdestroy/applicationContext.xml">
+	6->spring属性注入（set方法注入，构造函数注入，p名称空间注入，spel注入）为方便演示，新建包injection
+		1。set方法注入。值类型注入使用name，value ，引用类型注入使用name，ref
+		2.构造函数注入。首先要在实体类里面配置带参数的构造方法。第二要根据index属性设置使用的具体的是哪一个构造函数，
+			如果有多个重载的构造函数的时候，可以通过使用index属性指定构造函数的参数的顺序，还可以使用type属性指定
+			构造函数参数的类型。
+		3.（了解）p名称空间注入
+		4.（了解）spel注入
+		5.复杂类型注入（array、list、map、properties）
+	7->使用注解配置spring
+	如果属性只有一个，并且名是value的话，可以忽略属性键@Value(value="18")  == @Value("18")
+		1.为主配置文件引入新的命名空间（约束）
+			1.1window-preference-搜索cata：xml catalog-add-location里面去文件系统找下载的spring下的schema文件夹中的
+		context文件夹下，选择最新的xsd文件。然后key-type选schema location ，key：的后面加/加文件名字。
+			1.2xml editor打开applicationcontext.xml文件，design视图，bean-edit namespace，add-specify new namespace，
+			browser-select xml cata entry，location选中刚才添加的，然后namespace使用同样的路径去掉文件名（注意不要带斜杠），最上面的prefix使用文件名context,保存退出。
+		2.开启使用注解代理配置文件
+			使用spring editor重新打开application.xml配置文件,<con就会有提示了。
+			使用<context:component-scan base-package="com.jinan.www.bean"></context:component-scan>标签指定要扫描的包。
+			会扫描所有的包和子包下的所有类的注解。
+		3.在类中使用注解完成配置。(还有多导入一个aop的jar包）
+			@Component("user1")
+			/* 相当于<bean name="user1" class="com.jinan.www.bean.User"></bean>
+			 * @Service("user1")//service层 ，功能一样，都是把对象注入到容器中，但是可以体现分层的思想
+			 * @Controller("user1")//web层
+			 * @Repository("user1")//dao层
+			 */		
+			@Scope(scopeName="prototype")//默认是单例模式，修改对象的作用范围
+			
+		 4. 值注入：
+		   	@Value("tom")，可以加在属性上（通过反射的Field赋值，破坏了封装性）也可以加在set属性方法上。
+		 5.引用类型注入：
+		 	1-//@Autowired //自动装配
+		 	2-//@Autowired //自动装配
+				//问题：如果匹配多个类型一致的对象，将无法选择具体注入哪一个对象
+				//@Qualifier("car2")//使用qualifier注解告诉容器自动装配那个类型的对象,需要和autowired配合使用
+			3-@Resource(name="car")//手动注入，指定注入哪个名称的对象 
+		6.生命周期注解（在singleton模式下测试）
+			1：    @PostConstruct	//在对象被创建后调用.init-method
+				public void init() {
+					System.out.println("初始化方法");
+				}
+			2：    @PreDestroy	//在销毁之前调用.destroy-method
+				public void destroy() {
+					System.out.println("销毁方法");
+				}
+	8-》spring和junit的整合，新建包test1
+		1.导包。spring-test.jar
+		2.使用注解配置test类。
+		   
+	
+	
+	
